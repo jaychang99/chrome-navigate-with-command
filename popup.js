@@ -11,11 +11,22 @@ function submitCommand() {
       alert('No configuration found. Please configure your commands first.');
       return;
     }
+
+    // check if commands[command] has {arg1} and {arg2} placeholders
     const commands = data.commands;
-    const [command, arg1, arg2] = inputCommand.split(' ');
-    if (commands[command]) {
+
+    const [firstWord, arg1, arg2] = inputCommand.split(' ');
+
+    const doesHaveArgs = commands[firstWord]?.includes('{arg1}') || commands[firstWord]?.includes('{arg2}');
+
+
+    const finalCommand = doesHaveArgs ? inputCommand.split(' ')[0] : inputCommand;
+
+
+
+    if (commands[finalCommand]) {
       // Handling a single argument for simplicity; expand logic as needed for multiple args
-      const urlTemplate = commands[command];
+      const urlTemplate = commands[finalCommand];
       const url1 = urlTemplate.replace(/\{arg1\}/g, arg1);  // Replace placeholder with argument
       const url2 = url1.replace(/\{arg2\}/g, arg2);
       // chrome.tabs.create({ url });
