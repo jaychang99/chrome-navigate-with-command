@@ -4,7 +4,13 @@ document.getElementById('command-input').addEventListener('keypress', function (
   }
 });
 
-function submitCommand() {
+document.addEventListener('keydown', function(event) {
+  if (event.metaKey && event.key === 'Enter') {
+    submitCommand(true);
+  }
+});
+
+function submitCommand(shouldOpenInNewTab = false) {
   const inputCommand = document.getElementById('command-input').value;
   chrome.storage.local.get('commands', function (data) {
     if (!data.commands) {
@@ -29,12 +35,17 @@ function submitCommand() {
       const urlTemplate = commands[finalCommand];
       const url1 = urlTemplate.replace(/\{arg1\}/g, arg1);  // Replace placeholder with argument
       const url2 = url1.replace(/\{arg2\}/g, arg2);
-      // chrome.tabs.create({ url });
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.update(tabs[0].id, { url: url2 });
-      });
+
+      if (shouldOpenInNewTab){
+        chrome.tabs.create({ url: url2 });
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+          chrome.tabs.update(tabs[0].id, { url: url2 });
+        });
+      }
     } else {
       alert('Command not recognized.');
     }
   });
 }
+
